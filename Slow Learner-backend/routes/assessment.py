@@ -111,11 +111,12 @@ async def get_history(
 
             "risk_score": assessment["risk_score"],
 
-            "created_at": str(
-                assessment["created_at"]
-            )
+            "created_at": assessment["created_at"].isoformat(),
+            "assessment": assessment["assessment"]
+
         }
     )
+    
     return {
     "history": history
 }
@@ -131,20 +132,31 @@ async def delete_assessment(
     assessment_id: str,
     current_user=Depends(get_current_user)
 ):
+    try:
+        object_id = ObjectId(assessment_id)
+
+    except Exception:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid assessment ID"
+        )
+
     result = assessments_collection.delete_one(
-    {
-        "_id": ObjectId(assessment_id),
-        "user_id": str(current_user["_id"])
-    }
-)
+        {
+            "_id": object_id,
+            "user_id": str(current_user["_id"])
+        }
+    )
+
     if result.deleted_count == 0:
         raise HTTPException(
-        status_code=404,
-        detail="Assessment not found"
-    )
+            status_code=404,
+            detail="Assessment not found"
+        )
+
     return {
-    "message": "Assessment deleted successfully"
-}
+        "message": "Assessment deleted successfully"
+    }
 
 @router.get("/dashboard/stats")
 async def dashboard_stats(

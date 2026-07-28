@@ -23,99 +23,6 @@ function AssessmentForm() {
     diffVerbal: false,
   })
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-
-    const prevGradeVal = parseFloat(form.prevGrade || 0)
-    const attendanceVal = parseFloat(form.attendance || 0)
-    const studyHoursVal = parseFloat(form.studyHours || 0)
-
-    let parentalPoints = 0
-    if (form.parentalSupport === 'high') parentalPoints = 10
-    else if (form.parentalSupport === 'medium') parentalPoints = 5
-
-    let onlinePoints = 0
-    if (form.onlineClasses === 'yes') onlinePoints = 5
-
-    const score = Math.max(0, Math.min(100,
-      (prevGradeVal * 0.35) +
-      (attendanceVal * 0.35) +
-      (Math.min(studyHoursVal * 4, 15)) +
-      parentalPoints +
-      onlinePoints
-    ))
-
-    let category = 'Very Slow Learner'
-    let badgeColor = '#E53935'
-    if (score >= 75) { category = 'Fast Learner'; badgeColor = '#00C853' }
-    else if (score >= 50) { category = 'Average Learner'; badgeColor = '#FFA000' }
-    else if (score >= 30) { category = 'Slow Learner'; badgeColor = '#FF6D00' }
-
-    const riskScore = Math.round(100 - score)
-
-    // Package all assessment inputs into ONE JSON payload
-   const assessmentData = {
-
-    previous_grade: prevGradeVal,
-
-    attendance_rate: attendanceVal,
-
-    study_hours: studyHoursVal,
-
-    gender:
-        form.gender === "male"
-            ? "Male"
-            : "Female",
-
-    parental_support:
-        form.parentalSupport === "high"
-            ? "High"
-            : form.parentalSupport === "medium"
-            ? "Medium"
-            : "Low",
-
-    online_classes_taken:
-        form.onlineClasses === "yes"
-            ? "Yes"
-            : "No",
-
-    difficulty_checklist: [
-
-        ...(form.diffReading
-            ? ["Difficulty reading or recognizing words"]
-            : []),
-
-        ...(form.diffMaths
-            ? ["Trouble with numbers/basic maths"]
-            : []),
-
-        ...(form.diffFocusing
-            ? ["Difficulty focusing for long periods"]
-            : []),
-
-        ...(form.diffInstructions
-            ? ["Trouble following multi-step instructions"]
-            : []),
-
-        ...(form.diffMemory
-            ? ["Poor short-term memory"]
-            : []),
-
-        ...(form.diffWriting
-            ? ["Slow writing speed"]
-            : []),
-
-        ...(form.diffAnxiety
-            ? ["Anxiety during tests/class participation"]
-            : []),
-
-        ...(form.diffVerbal
-            ? ["Difficulty understanding verbal instructions"]
-            : [])
-
-    ]
-
-};
 
     const handleSubmit = async (e) => {
   e.preventDefault()
@@ -541,5 +448,4 @@ function AssessmentForm() {
     </div>
   )
 }
-
 export default AssessmentForm

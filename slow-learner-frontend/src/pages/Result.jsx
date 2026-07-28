@@ -8,20 +8,8 @@ import ChatbotWidget from '../components/chatbot/ChatbotWidget'
 
 
 function Result() {
-  const { state } = useLocation()
-
-const storedPrediction =
-JSON.parse(
-
-localStorage.getItem(
-"latest_prediction"
-)
-
-|| "{}")
-
-const data =
-state || storedPrediction
-const navigate = useNavigate()
+  const navigate = useNavigate()
+const { state } = useLocation()
 
 const storedPrediction = JSON.parse(
   localStorage.getItem("latest_prediction") || "{}"
@@ -33,11 +21,14 @@ const form = data.form || {}
 
 const prediction = data.prediction || "Unknown"
 
-const confidence = data.confidence || 0
+const confidence = Number(data.confidence || 0)
 
-const riskScore = data.riskScore || 0
+const riskScore = Number(
+  data.riskScore ?? data.risk_score ?? 0
+)
 
-const backendRecommendations = data.recommendations || []
+const backendRecommendations =
+  data.recommendations || []
 
 const badgeColor = data.badgeColor || "#DC2626"
 
