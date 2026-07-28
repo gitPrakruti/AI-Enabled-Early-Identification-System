@@ -104,16 +104,12 @@ async def get_history(
         history.append(
         {
             "id": str(assessment["_id"]),
-
-            "prediction": assessment["prediction"],
-
-            "confidence": assessment["confidence"],
-
-            "risk_score": assessment["risk_score"],
-
-            "created_at": assessment["created_at"].isoformat(),
-            "assessment": assessment["assessment"]
-
+        "prediction": assessment["prediction"],
+        "confidence": float(assessment["confidence"]),
+        "risk_score": float(assessment["risk_score"]),
+        "recommendations": assessment.get("recommendations", []),
+        "created_at": assessment["created_at"].isoformat(),
+        "assessment": assessment["assessment"],
         }
     )
     

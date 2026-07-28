@@ -447,6 +447,52 @@ function Home() {
               </div>
             </div>
 
+          {/* Assessment History (Blue Theme) */}
+
+<div
+  onClick={() => navigate("/history")}
+  className="bg-white dark:bg-[#161B26] rounded-2xl p-4 border border-[#EDE9FE] dark:border-[#1F2937] cursor-pointer hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-between group"
+>
+
+  <div className="flex items-center gap-4">
+
+    <div className="w-12 h-12 bg-[#EFF6FF] dark:bg-[#1E3A8A]/20 rounded-xl flex items-center justify-center text-2xl group-hover:scale-105 transition-transform duration-200 shrink-0">
+
+      📜
+
+    </div>
+
+    <div>
+
+      <p className="text-sm font-extrabold text-[#2563EB] dark:text-[#60A5FA]">
+
+        Assessment History
+
+      </p>
+
+      <p className="text-xs font-semibold text-[#6B7280] dark:text-[#9CA3AF] mt-0.5">
+
+        View all previous assessments
+
+      </p>
+
+      <div className="flex items-center gap-2 text-[10px] text-[#6B7280] dark:text-[#9CA3AF] mt-1.5 font-bold">
+
+        <span>🕒 Complete Assessment Timeline</span>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <div className="w-8 h-8 rounded-full bg-[#EFF6FF] dark:bg-[#1E3A8A]/20 flex items-center justify-center text-[#2563EB] dark:text-[#60A5FA] font-bold group-hover:translate-x-1 transition-all duration-200">
+
+    ➔
+
+  </div>
+
+</div>
             {/* Chat Assistant (Purple theme) */}
             <div
               onClick={() => setChatOpen(true)}
