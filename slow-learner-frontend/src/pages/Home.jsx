@@ -53,8 +53,6 @@ function Home() {
   // Profile sidebar states
   const [userName, setUserName] = useState('Student User')
   const [userEmail, setUserEmail] = useState('student@paceiq.edu')
-  const [roll, setRoll] = useState('PIQ-26-8941')
-  const [dept, setDept] = useState('Computer Science')
   const [isSidebarOpen, setSidebarOpen] = useState(false)
 
   // Profile editing fields state

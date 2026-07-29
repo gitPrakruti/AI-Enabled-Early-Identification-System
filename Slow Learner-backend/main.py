@@ -2,12 +2,13 @@ from routes.user import router as user_router
 from fastapi import FastAPI
 from database.database import client
 from routes.assessment import router as assessment_router
+from routes.chatbot import router as chatbot_router
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 app.include_router(user_router)
 app.include_router(assessment_router)
-
+app.include_router(chatbot_router)
 
 @app.get("/")
 def root():
