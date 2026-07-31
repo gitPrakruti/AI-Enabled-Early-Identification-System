@@ -53,6 +53,8 @@ function Home() {
   // Profile sidebar states
   const [userName, setUserName] = useState('Student User')
   const [userEmail, setUserEmail] = useState('student@paceiq.edu')
+  const [roll, setRoll] = useState("")
+  const [dept, setDept] = useState("")
   const [isSidebarOpen, setSidebarOpen] = useState(false)
 
   // Profile editing fields state
@@ -258,29 +260,49 @@ function Home() {
             </div>
 
             {/* Theme Toggle Section */}
-            <div className="mt-5 pt-4 border-t border-[#EDE9FE] dark:border-[#1F2937]">
-              <div className="flex items-center justify-between bg-[#F9FAFB] dark:bg-[#1F2937]/50 rounded-xl p-3 border border-[#EDE9FE]/50 dark:border-[#374151]">
-                <div className="flex items-center gap-2">
-                  <span className="text-base select-none">{theme === 'dark' ? '🌙' : '☀️'}</span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setTheme(prev => prev === 'light' ? 'dark' : 'light')}
-                  className={`w-10 h-6 rounded-full flex items-center p-1 transition-colors duration-200 shrink-0 ${
-                    theme === 'dark' ? 'bg-[#7C3AED]' : 'bg-[#E5E7EB]'
-                  }`}
-                  aria-label="Toggle dark mode"
-                >
-                  <div
-                    className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-200 ${
-                      theme === 'dark' ? 'translate-x-4' : 'translate-x-0'
-                    }`}
-                  />
-                </button>
-              </div>
-            </div>
+            {/* Theme Toggle Section */}
+<div className="mt-5 pt-4 border-t border-[#EDE9FE] dark:border-[#1F2937]">
 
-          </div>
+    <h4 className="text-[10px] font-bold text-[#7C3AED] dark:text-[#C084FC] uppercase tracking-wider mb-3">
+        Appearance
+    </h4>
+
+    <button
+        onClick={() =>
+            setTheme(theme === "light" ? "dark" : "light")
+        }
+        className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-[#F9FAFB] dark:bg-[#1F2937] border border-[#E5E7EB] dark:border-[#374151] hover:border-[#7C3AED] transition-all"
+    >
+        <div className="flex items-center gap-3">
+            <span className="text-xl">
+                {theme === "dark" ? "🌙" : "☀️"}
+            </span>
+
+            <span className="font-semibold text-[#1E1B4B] dark:text-white">
+                {theme === "dark"
+                    ? "Switch to Light Mode"
+                    : "Switch to Dark Mode"}
+            </span>
+        </div>
+
+        <div
+            className={`w-11 h-6 rounded-full p-1 transition-all ${
+                theme === "dark"
+                    ? "bg-violet-600"
+                    : "bg-gray-300"
+            }`}
+        >
+            <div
+                className={`w-4 h-4 bg-white rounded-full transition-transform ${
+                    theme === "dark"
+                        ? "translate-x-5"
+                        : ""
+                }`}
+            />
+        </div>
+    </button>
+
+</div></div>
 
           {/* Drawer Footer Actions */}
           <div className="space-y-3 pt-4 border-t border-[#EDE9FE] dark:border-[#1F2937] mt-5">
@@ -536,7 +558,7 @@ function Home() {
               </p>
             </div>
             <div className="text-4xl shrink-0 select-none animate-bounce">
-              🎁
+              📖
             </div>
           </div>
         </div>

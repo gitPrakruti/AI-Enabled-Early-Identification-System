@@ -1,17 +1,6 @@
 import { useState } from 'react'
+import ReactMarkdown from "react-markdown";
 
-const botReplies = (msg) => {
-  const t = msg.toLowerCase()
-  if (t.includes('risk')) return 'Your risk score shows how likely you are to fall behind academically. A lower score is better. It is calculated based on your attendance, marks, and study hours.'
-  if (t.includes('improve') || t.includes('better')) return 'To improve your learning pace: increase study hours, maintain 85%+ attendance, take weekly practice tests, and join a peer study group!'
-  if (t.includes('fast')) return 'Fast Learner means you are in the top 25% of students. Keep challenging yourself with advanced topics and help your peers!'
-  if (t.includes('slow')) return 'Do not worry! Focus on one subject at a time, visit your professor during office hours, and do daily 25-minute focused study sessions.'
-  if (t.includes('cgpa') || t.includes('marks')) return 'To improve your CGPA: solve previous year papers, clear your concepts thoroughly, and revise regularly before exams.'
-  if (t.includes('attendance')) return 'Try to maintain at least 85% attendance. Regular presence in class helps you stay on track and avoid missing key concepts.'
-  if (t.includes('study')) return 'Aim for 3-4 focused study hours daily. Use the Pomodoro technique: 25 minutes study, 5 minutes break. Avoid distractions during study time.'
-  if (t.includes('average')) return 'Average Learner means you are on track but have room to improve. Focus on consistency in attendance and study hours.'
-  return 'I can help you understand your learning pace, risk score, and how to improve your academic performance. Feel free to ask anything!'
-}
 
 function ChatbotWidget({ isOpen, setIsOpen }) {
   const [localOpen, setLocalOpen] = useState(false)
@@ -48,66 +37,54 @@ function ChatbotWidget({ isOpen, setIsOpen }) {
   }
 
   const sendMessage = async (customText) => {
-    const text = (customText || input).trim()
-    if (!text) return
-    if (!customText) setInput('')
+    const text = (customText || input).trim();
 
-    // Append user message
-    setMessages(prev => [...prev, { from: 'user', text }])
-    setIsThinking(true)
+    if (!text) return;
+
+    if (!customText) setInput("");
+
+    setMessages(prev => [...prev, { from: "user", text }]);
+
+    setIsThinking(true);
 
     try {
-      // Load current student stats from localStorage
-      const name = localStorage.getItem('paceiq_user_name') || 'Student User'
-      const dept = localStorage.getItem('paceiq_user_dept') || 'Computer Science'
-      const roll = localStorage.getItem('paceiq_user_roll') || 'PIQ-26-8941'
-      const category = localStorage.getItem('paceiq_latest_category') || 'Not Assessed Yet'
-      const risk = localStorage.getItem('paceiq_latest_risk') || 'Not Assessed Yet'
-      const cgpa = localStorage.getItem('paceiq_latest_cgpa') || 'N/A'
-      const attendance = localStorage.getItem('paceiq_latest_attendance') || 'N/A'
-      const studyHours = localStorage.getItem('paceiq_latest_study_hours') || 'N/A'
-      const attentiveness = localStorage.getItem('paceiq_latest_attentiveness') || 'N/A'
-      const assignmentRate = localStorage.getItem('paceiq_latest_assignment_rate') || 'N/A'
-      const backlogs = localStorage.getItem('paceiq_latest_backlogs') || 'N/A'
 
-      const systemPrompt = `You are PaceIQ, an encouraging and highly realistic academic AI assistant.
-You are helping ${name}, a college student in the ${dept} department (Roll: ${roll}).
-Here are the student's latest academic stats:
-- Learning Pace Category: ${category}
-- Risk Score: ${risk}%
-- Latest CGPA: ${cgpa}/10
-- Class Attendance: ${attendance}%
-- Study Hours/Day: ${studyHours} hrs
-- Attentiveness in Class: ${attentiveness}
-- Assignment Completion Rate: ${assignmentRate}%
-- Active Backlogs/KTs: ${backlogs}
+        const token = localStorage.getItem("token");
 
-Your goal is to guide this student to optimize their study habits, attendance, and assignment submissions, and help them improve their learning pace (Fast, Average, Slow, Very Slow Learner).
-Keep responses concise, friendly, and structured using clean bullet points. Write like a real advisor. Speak directly to ${name}. Never mention Puter, Pollinations, or that you are a model.`;
+        const response = await fetch(
+            "http://127.0.0.1:8000/chatbot/chat",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    message: text
+                })
+            }
+        );
 
-      // Construct a single unified prompt containing history and system guidelines
-      let unifiedPrompt = `${systemPrompt}\n\n`;
-      messages.forEach(msg => {
-        unifiedPrompt += `${msg.from === 'user' ? 'Student' : 'Assistant'}: ${msg.text}\n`;
-      });
-      unifiedPrompt += `Student: ${text}\nAssistant:`;
+        if (!response.ok) {
+            throw new Error("Backend error");
+        }
 
-      const response = await fetch(`https://text.pollinations.ai/${encodeURIComponent(unifiedPrompt)}`);
+        const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error('API request failed');
-      }
+        setIsThinking(false);
 
-      const responseText = await response.text();
-      setIsThinking(false);
-      simulateStream(responseText || "I'm sorry, I couldn't process that response.");
+        simulateStream(data.reply);
+
     } catch (error) {
-      console.error(error);
-      setIsThinking(false);
-      // Fallback to local rule engine
-      simulateStream(botReplies(text));
+
+        console.error(error);
+
+        setIsThinking(false);
+
+        simulateStream("Sorry, I couldn't connect to the AI assistant.");
+
     }
-  }
+};
 
   const quickReplies = [
     'What does my risk score mean?',
@@ -155,7 +132,9 @@ Keep responses concise, friendly, and structured using clean bullet points. Writ
                     ? 'bg-gradient-to-r from-[#7C3AED] to-[#9F67FF] text-white rounded-tr-none'
                     : 'bg-[#EDE9FE] text-[#1E1B4B] rounded-tl-none border border-[#EDE9FE]/50'
                 }`}>
-                  {msg.text}
+                  <ReactMarkdown>
+  {msg.text}
+</ReactMarkdown>
                 </div>
               </div>
             ))}
