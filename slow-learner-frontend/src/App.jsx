@@ -5,6 +5,7 @@ import Home from './pages/Home'
 import AssessmentForm from './pages/AssessmentForm'
 import Result from './pages/Result'
 import AssessmentHistory from "./pages/AssessmentHistory";
+import { useEffect } from "react";
 
 function App() {
   return (
@@ -23,6 +24,16 @@ function App() {
       </Routes>
     </BrowserRouter>
   )
+  useEffect(() => {
+    const savedTheme =
+        localStorage.getItem("paceiq_theme") || "light";
+
+    if (savedTheme === "dark") {
+        document.documentElement.classList.add("dark");
+    } else {
+        document.documentElement.classList.remove("dark");
+    }
+}, []);
 }
 
 export default App

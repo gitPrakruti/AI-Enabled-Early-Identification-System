@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import ChatbotWidget from '../components/chatbot/ChatbotWidget'
 
+
 const VOCABULARY_WORDS = [
   { word: 'Serendipity', type: 'n.', definition: 'The occurrence of events by chance in a happy or beneficial way.' },
   { word: 'Erudite', type: 'adj.', definition: 'Having or showing great knowledge or learning.' },
@@ -56,6 +57,20 @@ function Home() {
   const [roll, setRoll] = useState("")
   const [dept, setDept] = useState("")
   const [isSidebarOpen, setSidebarOpen] = useState(false)
+  const [theme, setTheme] = useState(
+  localStorage.getItem("paceiq_theme") || "light"
+)
+useEffect(() => {
+  const savedTheme = localStorage.getItem("paceiq_theme") || "light";
+
+  setTheme(savedTheme);
+
+  if (savedTheme === "dark") {
+    document.documentElement.classList.add("dark");
+  } else {
+    document.documentElement.classList.remove("dark");
+  }
+}, []);
 
   // Profile editing fields state
   const [isEditing, setIsEditing] = useState(false)
@@ -64,17 +79,6 @@ function Home() {
   const [editRoll, setEditRoll] = useState('')
   const [editDept, setEditDept] = useState('')
 
-  // Theme state (light / dark)
-  const [theme, setTheme] = useState(localStorage.getItem('paceiq_theme') || 'light')
-
-  useEffect(() => {
-    if (theme === 'dark') {
-      document.documentElement.classList.add('dark')
-    } else {
-      document.documentElement.classList.remove('dark')
-    }
-    localStorage.setItem('paceiq_theme', theme)
-  }, [theme])
 
   useEffect(() => {
     try {
@@ -135,6 +139,7 @@ function Home() {
   }
 
   const handleSaveChanges = () => {
+  
     try {
       localStorage.setItem('paceiq_user_name', editName)
       localStorage.setItem('paceiq_user_email', editEmail)
@@ -150,6 +155,21 @@ function Home() {
       console.error(err)
     }
   }
+  
+  const toggleTheme = () => {
+  const newTheme = theme === "dark" ? "light" : "dark";
+
+  setTheme(newTheme);
+  localStorage.setItem("paceiq_theme", newTheme);
+
+  if (newTheme === "dark") {
+    document.documentElement.classList.add("dark");
+  } else {
+    document.documentElement.classList.remove("dark");
+  }
+
+  window.dispatchEvent(new Event("themeChanged"));
+};
 
   return (
     <div className="min-h-screen bg-[#F5F3FF] dark:bg-[#0B0F19] pb-10 animate-fade-in transition-colors duration-200">
@@ -166,192 +186,215 @@ function Home() {
       )}
 
       {/* Sidebar Drawer */}
-      {isSidebarOpen && (
-        <div className="fixed top-0 left-0 bottom-0 w-72 bg-white dark:bg-[#161B26] shadow-2xl z-50 p-6 flex flex-col justify-between border-r border-[#EDE9FE] dark:border-[#1F2937] animate-slide-in overflow-y-auto transition-colors duration-200">
-          <div>
-            {/* Drawer Header */}
-            <div className="flex items-center justify-between mb-5 pb-4 border-b border-[#EDE9FE] dark:border-[#1F2937]">
-              <div className="flex items-center gap-2">
-                <img src="/logo.png" alt="PaceIQ Logo" className="w-6 h-6 object-contain" />
-                <span className="font-extrabold text-[#1E1B4B] dark:text-[#F3F4F6] text-base tracking-tight">
-                  {isEditing ? "Edit Profile" : "PaceIQ Profile"}
-                </span>
-              </div>
-              <button
-                onClick={() => {
-                  setSidebarOpen(false)
-                  setIsEditing(false)
-                }}
-                className="w-7 h-7 rounded-full bg-[#F5F3FF] dark:bg-[#1F2937] flex items-center justify-center text-[#7C3AED] dark:text-[#C084FC] hover:scale-105 active:scale-95 transition-all text-xs font-bold"
-              >
-                ✕
-              </button>
-            </div>
+{isSidebarOpen && (
+  <div className="fixed top-0 left-0 bottom-0 w-72 bg-white dark:bg-[#161B26] shadow-2xl z-50 p-6 flex flex-col justify-between border-r border-[#EDE9FE] dark:border-[#1F2937] overflow-y-auto transition-colors duration-200">
 
-            {/* Profile Avatar Card */}
-            {!isEditing ? (
-              <div className="text-center mb-5 bg-[#F5F3FF]/60 dark:bg-[#201B4B]/30 rounded-2xl p-4 border border-[#EDE9FE] dark:border-[#1F2937]">
-                <div className="w-14 h-14 bg-gradient-to-br from-[#7C3AED] to-[#9F67FF] text-white text-xl font-black rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-sm select-none">
-                  {userName.charAt(0).toUpperCase()}
-                </div>
-                <h3 className="font-extrabold text-[#1E1B4B] dark:text-[#F3F4F6] text-base truncate">{userName}</h3>
-                <p className="text-xs text-[#6B7280] dark:text-[#9CA3AF] truncate mt-0.5">{userEmail}</p>
-              </div>
-            ) : (
-              <div className="space-y-3 mb-5 p-4 bg-[#F5F3FF]/40 dark:bg-[#1F2937]/30 rounded-2xl border border-[#EDE9FE] dark:border-[#374151]">
-                <div>
-                  <label className="block text-[9px] font-bold text-[#7C3AED] dark:text-[#C084FC] uppercase tracking-wider mb-1">Full Name</label>
-                  <input
-                    type="text"
-                    value={editName}
-                    onChange={e => setEditName(e.target.value)}
-                    className="w-full px-3 py-1.5 rounded-lg border border-[#EDE9FE] dark:border-[#374151] text-xs outline-none focus:border-[#7C3AED] bg-white dark:bg-[#1F2937] text-[#1E1B4B] dark:text-white font-semibold"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[9px] font-bold text-[#7C3AED] dark:text-[#C084FC] uppercase tracking-wider mb-1">Email Address</label>
-                  <input
-                    type="email"
-                    value={editEmail}
-                    onChange={e => setEditEmail(e.target.value)}
-                    className="w-full px-3 py-1.5 rounded-lg border border-[#EDE9FE] dark:border-[#374151] text-xs outline-none focus:border-[#7C3AED] bg-white dark:bg-[#1F2937] text-[#1E1B4B] dark:text-white font-semibold"
-                  />
-                </div>
-              </div>
-            )}
+    {/* TOP CONTENT */}
+    <div>
 
-            {/* Student Details Section */}
-            <div className="space-y-4">
-              <h4 className="text-[10px] font-bold text-[#7C3AED] dark:text-[#C084FC] uppercase tracking-wider">Student Details</h4>
-              
-              {!isEditing ? (
-                <div className="bg-[#F9FAFB] dark:bg-[#1F2937]/50 rounded-xl p-3.5 border border-[#EDE9FE]/50 dark:border-[#374151] space-y-3">
-                  <div className="flex justify-between items-center text-xs">
-                    <span className="font-bold text-[#6B7280] dark:text-[#9CA3AF]">Roll Number</span>
-                    <span className="font-extrabold text-[#1E1B4B] dark:text-[#F3F4F6]">{roll}</span>
-                  </div>
-                  <div className="flex justify-between items-center text-xs">
-                    <span className="font-bold text-[#6B7280] dark:text-[#9CA3AF]">Department</span>
-                    <span className="font-extrabold text-[#1E1B4B] dark:text-[#F3F4F6]">{dept}</span>
-                  </div>
-                </div>
-              ) : (
-                <div className="bg-[#F9FAFB] dark:bg-[#1F2937]/50 rounded-xl p-3.5 border border-[#EDE9FE]/50 dark:border-[#374151] space-y-3">
-                  <div>
-                    <label className="block text-[9px] font-bold text-[#6B7280] dark:text-[#9CA3AF] uppercase tracking-wider mb-1">Roll Number</label>
-                    <input
-                      type="text"
-                      value={editRoll}
-                      onChange={e => setEditRoll(e.target.value)}
-                      className="w-full px-3 py-1.5 rounded-lg border border-[#EDE9FE] dark:border-[#374151] text-xs outline-none focus:border-[#7C3AED] bg-white dark:bg-[#1F2937] text-[#1E1B4B] dark:text-white font-semibold"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[9px] font-bold text-[#6B7280] dark:text-[#9CA3AF] uppercase tracking-wider mb-1">Department</label>
-                    <input
-                      type="text"
-                      value={editDept}
-                      onChange={e => setEditDept(e.target.value)}
-                      className="w-full px-3 py-1.5 rounded-lg border border-[#EDE9FE] dark:border-[#374151] text-xs outline-none focus:border-[#7C3AED] bg-white dark:bg-[#1F2937] text-[#1E1B4B] dark:text-white font-semibold"
-                    />
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Theme Toggle Section */}
-            {/* Theme Toggle Section */}
-<div className="mt-5 pt-4 border-t border-[#EDE9FE] dark:border-[#1F2937]">
-
-    <h4 className="text-[10px] font-bold text-[#7C3AED] dark:text-[#C084FC] uppercase tracking-wider mb-3">
-        Appearance
-    </h4>
-
-    <button
-        onClick={() =>
-            setTheme(theme === "light" ? "dark" : "light")
-        }
-        className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-[#F9FAFB] dark:bg-[#1F2937] border border-[#E5E7EB] dark:border-[#374151] hover:border-[#7C3AED] transition-all"
-    >
-        <div className="flex items-center gap-3">
-            <span className="text-xl">
-                {theme === "dark" ? "🌙" : "☀️"}
-            </span>
-
-            <span className="font-semibold text-[#1E1B4B] dark:text-white">
-                {theme === "dark"
-                    ? "Switch to Light Mode"
-                    : "Switch to Dark Mode"}
-            </span>
+      {/* Drawer Header */}
+      <div className="flex items-center justify-between mb-5 pb-4 border-b border-[#EDE9FE] dark:border-[#1F2937]">
+        <div className="flex items-center gap-2">
+          <img
+            src="/logo.png"
+            alt="PaceIQ Logo"
+            className="w-6 h-6 object-contain"
+          />
+          <span className="font-extrabold text-[#1E1B4B] dark:text-white">
+            {isEditing ? "Edit Profile" : "PaceIQ Profile"}
+          </span>
         </div>
 
-        <div
-            className={`w-11 h-6 rounded-full p-1 transition-all ${
-                theme === "dark"
-                    ? "bg-violet-600"
-                    : "bg-gray-300"
-            }`}
+        <button
+          onClick={() => {
+            setSidebarOpen(false)
+            setIsEditing(false)
+          }}
+          className="w-7 h-7 rounded-full bg-[#F5F3FF] dark:bg-[#1F2937] flex items-center justify-center"
         >
-            <div
-                className={`w-4 h-4 bg-white rounded-full transition-transform ${
-                    theme === "dark"
-                        ? "translate-x-5"
-                        : ""
-                }`}
-            />
-        </div>
-    </button>
+          ✕
+        </button>
+      </div>
 
-</div></div>
+      {/* Profile Card */}
 
-          {/* Drawer Footer Actions */}
-          <div className="space-y-3 pt-4 border-t border-[#EDE9FE] dark:border-[#1F2937] mt-5">
-            {!isEditing ? (
-              <>
-                <button
-                  onClick={handleStartEdit}
-                  className="w-full bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors shadow-sm"
-                >
-                  ✏️ Edit Profile Details
-                </button>
-                <button
-                  onClick={() => {
-                    setSidebarOpen(false)
-                    navigate('/assessment')
-                  }}
-                  className="w-full bg-[#F5F3FF] dark:bg-[#1F2937] hover:bg-[#EDE9FE] dark:hover:bg-[#2A3342] text-[#7C3AED] dark:text-[#C084FC] font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors border border-[#EDE9FE]/50 dark:border-[#374151]"
-                >
-                  📝 Take Assessment
-                </button>
-                <button
-                  onClick={() => {
-                    setSidebarOpen(false)
-                    navigate('/login')
-                  }}
-                  className="w-full bg-[#FFF5F5] dark:bg-[#7F1D1D]/20 hover:bg-[#FEE2E2] dark:hover:bg-[#7F1D1D]/40 text-[#EF4444] font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors border border-[#FEE2E2]/50 dark:border-[#7F1D1D]/30"
-                >
-                  🚪 Logout
-                </button>
-              </>
-            ) : (
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setIsEditing(false)}
-                  className="flex-1 bg-[#F3F4F6] dark:bg-[#1F2937] hover:bg-[#E5E7EB] dark:hover:bg-[#374151] text-[#4B5563] dark:text-[#9CA3AF] font-bold py-2.5 rounded-xl text-xs transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleSaveChanges}
-                  className="flex-1 bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-bold py-2.5 rounded-xl text-xs transition-colors shadow-sm"
-                >
-                  Save
-                </button>
-              </div>
-            )}
+      {!isEditing ? (
+
+        <div className="text-center mb-6">
+
+          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#7C3AED] to-[#9F67FF] text-white flex items-center justify-center mx-auto text-2xl font-bold mb-3">
+
+            {userName.charAt(0).toUpperCase()}
+
           </div>
+
+          <h2 className="font-bold text-lg dark:text-white">
+            {userName}
+          </h2>
+
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            {userEmail}
+          </p>
+
         </div>
+
+      ) : (
+
+        <div className="space-y-3 mb-6">
+
+          <input
+            value={editName}
+            onChange={(e)=>setEditName(e.target.value)}
+            placeholder="Full Name"
+            className="w-full p-2 rounded-lg border dark:bg-[#1F2937]"
+          />
+
+          <input
+            value={editEmail}
+            onChange={(e)=>setEditEmail(e.target.value)}
+            placeholder="Email"
+            className="w-full p-2 rounded-lg border dark:bg-[#1F2937]"
+          />
+
+        </div>
+
       )}
+
+      {/* Student Details */}
+
+      <div className="space-y-3">
+
+        <h3 className="text-xs font-bold uppercase text-[#7C3AED]">
+          Student Details
+        </h3>
+
+        {!isEditing ? (
+
+          <div className="bg-[#F9FAFB] dark:bg-[#1F2937] rounded-xl p-4 space-y-2">
+
+            <div className="flex justify-between">
+              <span>Roll</span>
+              <span>{roll}</span>
+            </div>
+
+            <div className="flex justify-between">
+              <span>Department</span>
+              <span>{dept}</span>
+            </div>
+
+          </div>
+
+        ) : (
+
+          <div className="space-y-3">
+
+            <input
+              value={editRoll}
+              onChange={(e)=>setEditRoll(e.target.value)}
+              placeholder="Roll Number"
+              className="w-full p-2 rounded-lg border dark:bg-[#1F2937]"
+            />
+
+            <input
+              value={editDept}
+              onChange={(e)=>setEditDept(e.target.value)}
+              placeholder="Department"
+              className="w-full p-2 rounded-lg border dark:bg-[#1F2937]"
+            />
+
+          </div>
+
+        )}
+
+      </div>
+
+      {/* Appearance */}
+
+      <div className="mt-6 border-t pt-4">
+
+        <h3 className="text-xs font-bold uppercase text-[#7C3AED] mb-3">
+          Appearance
+        </h3>
+
+        <button
+          onClick={toggleTheme}
+          className="w-full flex justify-between items-center px-4 py-3 rounded-xl border bg-[#F9FAFB] dark:bg-[#1F2937]"
+        >
+          <span>
+            {theme==="dark" ? "🌙 Dark Mode" : "☀️ Light Mode"}
+          </span>
+
+          <span>
+            {theme==="dark" ? "ON" : "OFF"}
+          </span>
+
+        </button>
+
+      </div>
+
+    </div>
+
+              {/* Drawer Footer Actions */}
+
+    <div className="space-y-3 pt-5 border-t border-[#EDE9FE] dark:border-[#1F2937] mt-6">
+
+      {!isEditing ? (
+
+        <>
+          <button
+            onClick={handleStartEdit}
+            className="w-full bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-bold py-2.5 rounded-xl transition"
+          >
+            ✏️ Edit Profile
+          </button>
+
+          <button
+            onClick={() => {
+              setSidebarOpen(false)
+              navigate("/assessment")
+            }}
+            className="w-full bg-[#F5F3FF] dark:bg-[#1F2937] text-[#7C3AED] dark:text-[#C084FC] border border-[#EDE9FE] dark:border-[#374151] font-bold py-2.5 rounded-xl"
+          >
+            📝 Take Assessment
+          </button>
+
+          <button
+            onClick={() => {
+              localStorage.removeItem("token")
+              navigate("/login")
+            }}
+            className="w-full bg-red-50 dark:bg-red-900/20 text-red-500 border border-red-200 dark:border-red-800 font-bold py-2.5 rounded-xl"
+          >
+            🚪 Logout
+          </button>
+        </>
+
+      ) : (
+
+        <div className="flex gap-2">
+
+          <button
+            onClick={() => setIsEditing(false)}
+            className="flex-1 bg-gray-200 dark:bg-[#1F2937] py-2.5 rounded-xl font-bold"
+          >
+            Cancel
+          </button>
+
+          <button
+            onClick={handleSaveChanges}
+            className="flex-1 bg-[#7C3AED] text-white py-2.5 rounded-xl font-bold"
+          >
+            Save
+          </button>
+
+        </div>
+
+      )}
+
+    </div>
+
+  </div>
+)}
 
       {/* Header */}
       <div className="bg-white dark:bg-[#161B26] border-b border-[#EDE9FE] dark:border-[#1F2937] px-6 py-4 flex items-center justify-between shadow-sm transition-colors duration-200">
