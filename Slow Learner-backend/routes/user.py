@@ -21,7 +21,6 @@ def signup(user: User):
 
     user_data = user.model_dump()
     user_data["password"] = hash_password(user_data["password"])
-
     user_data["created_at"] = datetime.utcnow()
 
     users_collection.insert_one(user_data)
@@ -70,10 +69,10 @@ def profile(
     current_user = Depends(get_current_user)
 ):
     return {
-    "name": current_user.get("name", ""),
-    "email": current_user["email"],
-    "joined_at": str(
-        current_user.get("created_at", "")
-    )
+        "name": current_user.get("name", ""),
+        "email": current_user["email"],
+        "gender": current_user.get("gender", ""),
+        "joined_at": str(
+            current_user.get("created_at", "")
+        )
     }
-

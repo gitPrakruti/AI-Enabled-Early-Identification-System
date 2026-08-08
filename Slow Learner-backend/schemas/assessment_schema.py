@@ -11,8 +11,6 @@ class AssessmentRequest(BaseModel):
     study_hours: float = Field(..., ge=0)
 
 
-    gender: Literal["Male", "Female"]
-
     parental_support: Literal["Low", "Medium", "High"]
 
     online_classes_taken: Literal["Yes", "No"]

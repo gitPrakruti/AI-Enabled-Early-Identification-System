@@ -7,45 +7,133 @@ function Login() {
   const [error, setError] = useState('')
   const navigate = useNavigate()
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault()
+
     if (!email || !password) {
       setError('Please fill in all fields')
       return
     }
+
     setError('')
+
     try {
-      localStorage.setItem('paceiq_user_email', email)
-      if (!localStorage.getItem('paceiq_user_name')) {
-        localStorage.setItem('paceiq_user_name', 'Student User')
+      const response = await fetch('http://127.0.0.1:8000/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          email,
+          password
+        })
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.detail || 'Login failed')
       }
+
+      // Store JWT token
+      localStorage.setItem('token', data.access_token)
+
+      // Keep email for frontend use
+      localStorage.setItem('paceiq_user_email', email)
+
+      // Fetch logged-in user's profile
+      try {
+        const profileResponse = await fetch(
+          'http://127.0.0.1:8000/profile',
+          {
+            method: 'GET',
+            headers: {
+              Authorization: `Bearer ${data.access_token}`
+            }
+          }
+        )
+
+        if (profileResponse.ok) {
+          const profileData = await profileResponse.json()
+
+          // Save account information
+          if (profileData.name) {
+            localStorage.setItem(
+              'paceiq_user_name',
+              profileData.name
+            )
+          }
+
+          if (profileData.email) {
+            localStorage.setItem(
+              'paceiq_user_email',
+              profileData.email
+            )
+          }
+
+          // Gender is stored in the account.
+          // Save it locally so frontend pages can use it if needed.
+          if (profileData.gender) {
+            localStorage.setItem(
+              'paceiq_user_gender',
+              profileData.gender
+            )
+          }
+        }
+      } catch (profileError) {
+        console.warn(
+          'Could not fetch user profile:',
+          profileError
+        )
+      }
+
+      if (!localStorage.getItem('paceiq_user_name')) {
+        localStorage.setItem(
+          'paceiq_user_name',
+          'Student User'
+        )
+      }
+
+      navigate('/home')
     } catch (err) {
-      console.error(err)
+      console.error('Login error:', err)
+      setError(err.message || 'Invalid email or password')
     }
-    navigate('/home')
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F3FF] dark:bg-[#0B0F19] flex items-center justify-center px-4 animate-fade-in transition-colors duration-200">
-      <div className="w-full max-w-sm">
+    <div className="min-h-screen bg-[#FAF9FF] dark:bg-[#0F1117] flex items-center justify-center px-4 py-8 transition-colors duration-200">
+      <div className="w-full max-w-md">
 
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="w-16 h-16 bg-white dark:bg-[#161B26] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-md border border-[#EDE9FE] dark:border-[#1F2937] hover:scale-105 active:scale-95 transition-all duration-200">
-            <img src="/logo.png" alt="PaceIQ Logo" className="w-12 h-12 object-contain rounded-xl" />
+            <img
+              src="/logo.png"
+              alt="PaceIQ Logo"
+              className="w-12 h-12 object-contain rounded-xl"
+            />
           </div>
-          <h1 className="text-3xl font-extrabold text-[#1E1B4B] dark:text-[#F3F4F6] tracking-tight">PaceIQ</h1>
-          <p className="text-xs font-bold text-[#7C3AED] dark:text-[#C084FC] uppercase tracking-widest mt-2">Identify. Improve. Excel.</p>
+
+          <h1 className="text-3xl font-extrabold text-[#1E1B4B] dark:text-[#F3F4F6] tracking-tight">
+            PaceIQ
+          </h1>
+
+          <p className="text-xs font-bold text-[#7C3AED] dark:text-[#C084FC] uppercase tracking-widest mt-2">
+            Identify. Improve. Excel.
+          </p>
         </div>
 
-        {/* Card */}
+        {/* Login Card */}
         <div className="bg-white dark:bg-[#161B26] rounded-2xl shadow-sm border border-[#EDE9FE] dark:border-[#1F2937] p-6 transition-colors duration-200">
           <form onSubmit={handleLogin} className="space-y-4">
 
+            {/* Email */}
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-[#1E1B4B] dark:text-[#C084FC] mb-1.5">
                 Email
               </label>
+
               <input
                 type="email"
                 value={email}
@@ -55,10 +143,12 @@ function Login() {
               />
             </div>
 
+            {/* Password */}
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-[#1E1B4B] dark:text-[#C084FC] mb-1.5">
                 Password
               </label>
+
               <input
                 type="password"
                 value={password}
@@ -68,12 +158,14 @@ function Login() {
               />
             </div>
 
+            {/* Error */}
             {error && (
               <div className="text-xs font-semibold text-[#DC2626] bg-[#FDF2F2] dark:bg-[#7F1D1D]/20 border border-[#FDE8E8] dark:border-[#7F1D1D]/30 px-3.5 py-2.5 rounded-xl">
                 ⚠️ {error}
               </div>
             )}
 
+            {/* Submit */}
             <button
               type="submit"
               className="w-full bg-gradient-to-r from-[#7C3AED] to-[#9F67FF] text-white font-bold py-3.5 rounded-xl text-sm shadow-md hover:scale-105 active:scale-95 transition-all duration-200 mt-2"
@@ -84,9 +176,13 @@ function Login() {
           </form>
         </div>
 
+        {/* Signup Link */}
         <p className="text-center text-sm text-[#6B7280] dark:text-[#9CA3AF] mt-4">
           New here?{' '}
-          <Link to="/signup" className="text-[#7C3AED] dark:text-[#C084FC] font-bold hover:underline">
+          <Link
+            to="/signup"
+            className="text-[#7C3AED] dark:text-[#C084FC] font-bold hover:underline"
+          >
             Create an account
           </Link>
         </p>
