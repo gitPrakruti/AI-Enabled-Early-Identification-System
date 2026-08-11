@@ -2,6 +2,7 @@ from fastapi import APIRouter
 from fastapi import APIRouter, Depends
 from schemas.chatbot import *
 from utils.dependencies import get_current_user
+from utils.chatbot import get_chatbot_response
 
 
 from utils.chatbot import *
@@ -16,7 +17,7 @@ async def chat(
     data: ChatRequest,
     current_user=Depends(get_current_user)
 ):
-    reply = generate_reply(
+    reply = get_chatbot_response(
         data.message
     )
 
