@@ -15,7 +15,7 @@ client = genai.Client(api_key=GEMINI_API_KEY)
 def get_chatbot_response(message: str):
 
     response = client.models.generate_content(
-        model="gemini-2.5-flash",
+        model="gemini-3-flash-preview",
         contents=f"""
 You are PaceIQ's AI learning assistant.
 
