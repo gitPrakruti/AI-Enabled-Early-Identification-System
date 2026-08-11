@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
+import api from '../api/api'
 
 function Login() {
   const [email, setEmail] = useState('')
@@ -18,67 +19,55 @@ function Login() {
     setError('')
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          email,
-          password
-        })
+      // Login using the centralized Axios API
+      const response = await api.post('/login', {
+        email,
+        password
       })
 
-      const data = await response.json()
+      // Axios response data
+      const data = response.data
 
-      if (!response.ok) {
-        throw new Error(data.detail || 'Login failed')
-      }
+      console.log('Login successful:', data)
 
       // Store JWT token
-      localStorage.setItem('token', data.access_token)
+      if (data.access_token) {
+        localStorage.setItem('token', data.access_token)
+      }
 
       // Keep email for frontend use
       localStorage.setItem('paceiq_user_email', email)
 
       // Fetch logged-in user's profile
       try {
-        const profileResponse = await fetch(
-          'http://127.0.0.1:8000/profile',
-          {
-            method: 'GET',
-            headers: {
-              Authorization: `Bearer ${data.access_token}`
-            }
-          }
-        )
+        const profileResponse = await api.get('/profile')
 
-        if (profileResponse.ok) {
-          const profileData = await profileResponse.json()
+        // Axios stores server response inside .data
+        const profileData = profileResponse.data
 
-          // Save account information
-          if (profileData.name) {
-            localStorage.setItem(
-              'paceiq_user_name',
-              profileData.name
-            )
-          }
+        console.log('Profile:', profileData)
 
-          if (profileData.email) {
-            localStorage.setItem(
-              'paceiq_user_email',
-              profileData.email
-            )
-          }
+        // Save account information
+        if (profileData.name) {
+          localStorage.setItem(
+            'paceiq_user_name',
+            profileData.name
+          )
+        }
 
-          // Gender is stored in the account.
-          // Save it locally so frontend pages can use it if needed.
-          if (profileData.gender) {
-            localStorage.setItem(
-              'paceiq_user_gender',
-              profileData.gender
-            )
-          }
+        if (profileData.email) {
+          localStorage.setItem(
+            'paceiq_user_email',
+            profileData.email
+          )
+        }
+
+        // Gender is stored in the account
+        if (profileData.gender) {
+          localStorage.setItem(
+            'paceiq_user_gender',
+            profileData.gender
+          )
         }
       } catch (profileError) {
         console.warn(
@@ -87,6 +76,7 @@ function Login() {
         )
       }
 
+      // Fallback name
       if (!localStorage.getItem('paceiq_user_name')) {
         localStorage.setItem(
           'paceiq_user_name',
@@ -94,10 +84,20 @@ function Login() {
         )
       }
 
+      // Login successful → go to Home
       navigate('/home')
+
     } catch (err) {
       console.error('Login error:', err)
-      setError(err.message || 'Invalid email or password')
+
+      // Axios error response
+      const errorMessage =
+        err.response?.data?.detail ||
+        err.response?.data?.message ||
+        err.message ||
+        'Invalid email or password'
+
+      setError(errorMessage)
     }
   }
 
@@ -126,6 +126,7 @@ function Login() {
 
         {/* Login Card */}
         <div className="bg-white dark:bg-[#161B26] rounded-2xl shadow-sm border border-[#EDE9FE] dark:border-[#1F2937] p-6 transition-colors duration-200">
+
           <form onSubmit={handleLogin} className="space-y-4">
 
             {/* Email */}

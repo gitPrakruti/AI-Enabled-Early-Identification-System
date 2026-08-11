@@ -4,13 +4,29 @@ from google import genai
 
 load_dotenv()
 
-client = genai.Client(
-    api_key=os.getenv("GEMINI_API_KEY")
-)
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
-def generate_reply(prompt):
+if not GEMINI_API_KEY:
+    raise RuntimeError("GEMINI_API_KEY is not configured")
+
+client = genai.Client(api_key=GEMINI_API_KEY)
+
+
+def get_chatbot_response(message: str):
+
     response = client.models.generate_content(
-model="gemini-flash-latest",
-        contents=prompt,
+        model="gemini-2.5-flash",
+        contents=f"""
+You are PaceIQ's AI learning assistant.
+
+The user asked:
+
+{message}
+
+Give a helpful, concise and student-friendly response.
+Focus on practical educational advice.
+Do not diagnose medical or psychological conditions.
+"""
     )
+
     return response.text

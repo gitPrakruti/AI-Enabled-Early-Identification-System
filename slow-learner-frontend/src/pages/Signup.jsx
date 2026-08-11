@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import axios from 'axios'
+import api from '../api/api'
 
 function Signup() {
   const [name, setName] = useState('')
@@ -26,8 +27,8 @@ function Signup() {
     setError('')
 
     try {
-      const response = await axios.post(
-        'http://127.0.0.1:8000/signup',
+      const response = await api.post(
+        '/signup',
         {
           name,
           email,
